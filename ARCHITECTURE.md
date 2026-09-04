@@ -73,7 +73,364 @@ Actions are for meaningful application operations.
 
 ---
 
-# 3. Directory Structure
+# 3. Application Areas: Guest, Member, and Admin
+
+The 8bit Laravel Starter contains three application areas:
+
+```text
+Guest / Public Website
+Authenticated Member Application
+Admin Application
+```
+
+They are **not** separate repositories, separate Laravel applications, or separate deployments.
+
+All three areas remain within the same:
+
+```text
+Laravel application
+Git repository
+Database
+Deployment
+```
+
+The separation happens at the application/UI/route/authorization level, not at the infrastructure level. The starter intentionally stays as close as practical to Laravel's conventional, default project structure — the three areas are a routing/layout/authorization distinction, not a reason to introduce parallel frameworks or directory trees.
+
+## Guest / Public Website
+
+The Guest / Public Website is the unauthenticated, public-facing portion of the application.
+
+It uses:
+
+```text
+resources/views/layouts/guest.blade.php
+```
+
+`guest.blade.php` is the public/guest presentation layout. It is not restricted to authentication pages — it is the layout for any guest-facing page, whether a login screen or a public marketing page.
+
+Typical future routes may include:
+
+```text
+/
+/about
+/services
+/contact
+```
+
+These are architectural examples only. They are not implemented by this starter and must not be created merely to satisfy this document.
+
+Public pages may be regular Blade views or Livewire components depending on whether interactivity is required. A dedicated `app/Livewire/Public/` namespace is not introduced merely for organizational symmetry — see Application Area File Organization.
+
+Client-specific public website pages and modules will be added by individual projects built from this starter.
+
+## Authenticated Member Application
+
+The Authenticated Member Application is the non-administrative, authenticated portion of the application — the ordinary functionality available to any signed-in user.
+
+It uses:
+
+```text
+resources/views/layouts/app.blade.php
+```
+
+Member-facing Livewire components live directly under `app/Livewire/`, close to Laravel's conventional structure, rather than under a dedicated namespace:
+
+```text
+app/Livewire/
+├── Dashboard.php
+└── Profile.php
+```
+
+Both require:
+
+```text
+auth
+verified
+```
+
+and are registered in `routes/web.php`:
+
+```text
+/dashboard
+/profile
+```
+
+Profile represents the currently authenticated user's own account — see User Profile vs User Management.
+
+## Admin Application
+
+The Admin Application is a separate, authenticated application area within the same Laravel project.
+
+The canonical URL prefix is:
+
+```text
+/admin
+```
+
+The Admin Application will eventually contain routes such as:
+
+```text
+/admin
+/admin/dashboard
+/admin/users
+/admin/roles
+/admin/permissions
+/admin/settings
+```
+
+Only `/admin/dashboard` exists today. The remaining routes are architectural examples only and must not be created merely to satisfy this document. Phase 3 and later phases will implement them deliberately.
+
+The Admin Application has its own:
+
+```text
+Layout
+Navigation
+Sidebar
+Top bar
+Page structure
+Livewire namespace
+Views
+Authorization boundary
+```
+
+It uses:
+
+```text
+resources/views/layouts/admin.blade.php
+```
+
+and its Livewire components live under:
+
+```text
+app/Livewire/Admin/
+```
+
+---
+
+# 4. Application Area File Organization
+
+Guest, Member, and Admin interfaces do not share one giant application layout or view tree.
+
+## Layouts
+
+```text
+resources/views/layouts/
+├── guest.blade.php
+├── app.blade.php
+└── admin.blade.php
+```
+
+Responsibilities:
+
+```text
+guest.blade.php  → Guest / Public Website + guest-facing auth screens
+app.blade.php    → Authenticated Member Application
+admin.blade.php  → Admin Application
+```
+
+The Member and Admin layouts may look visually similar, especially early in the starter's life. They remain separate files because their navigation, available actions, application context, and authorization requirements are expected to diverge as the starter grows.
+
+Do not redesign these layouts merely because this document describes them.
+
+## Livewire Organization
+
+```text
+app/Livewire/
+├── Auth/
+│   ├── Login.php
+│   ├── Register.php
+│   ├── ForgotPassword.php
+│   ├── ResetPassword.php
+│   └── VerifyEmail.php
+│
+├── Dashboard.php
+├── Profile.php
+│
+└── Admin/
+    ├── Dashboard.php
+    ├── Users/
+    ├── Roles/
+    ├── Permissions/
+    ├── Settings/
+    └── ...
+```
+
+`Auth/` contains authentication screens used by the application's single, unified authentication system.
+
+`Dashboard.php` and `Profile.php` are Member-facing components and live directly under `app/Livewire/`, following Laravel's conventional structure rather than a dedicated namespace.
+
+`Admin/` contains Livewire components for the Admin Application, organized by feature exactly as described in Livewire Architecture.
+
+Do not create `app/Livewire/Public/` merely for organizational symmetry. Public website pages may be regular Blade views, or Livewire components added directly under `app/Livewire/` (or their own feature namespace), when a public feature genuinely requires one.
+
+Do not create empty `Admin/` feature directories (`Users/`, `Roles/`, `Permissions/`, `Settings/`) merely to satisfy this document. Create them when the corresponding components are actually implemented.
+
+## View Organization
+
+```text
+resources/views/
+├── layouts/
+│   ├── guest.blade.php
+│   ├── app.blade.php
+│   └── admin.blade.php
+│
+├── livewire/
+│   ├── auth/
+│   ├── dashboard.blade.php
+│   ├── profile.blade.php
+│   └── admin/
+│       └── dashboard.blade.php
+│
+└── components/
+    └── 8bit/
+```
+
+Admin views live under `resources/views/livewire/admin/`. Member views live directly under `resources/views/livewire/`, mirroring Livewire Organization above. Public website pages, when added, may live under `resources/views/` following normal Laravel conventions (for example `resources/views/about.blade.php`) rather than a dedicated `public/` directory created merely for symmetry.
+
+---
+
+# 5. Admin Is Not a Separate Application
+
+The Admin Application is not a separate single-page application, a separate frontend project, or a separate backend service.
+
+The starter does not use:
+
+```text
+React
+Vue
+Inertia
+A separate frontend repository
+A separate backend repository
+```
+
+The Admin Application uses the same stack as the rest of the starter:
+
+```text
+Laravel
+Blade
+Livewire
+Mary UI
+Tailwind CSS
+daisyUI
+```
+
+The Guest/Public Website and the Authenticated Member Application use the same underlying stack while presenting their own layout, navigation, and page structure.
+
+Do not introduce a second frontend framework, a second component library, or a parallel build pipeline to support the Admin Application.
+
+---
+
+# 6. Shared Application Layers
+
+Guest/Public, Member, and Admin share nearly everything below the presentation layer.
+
+Shared:
+
+```text
+Laravel application
+Eloquent models
+Database
+Authentication system
+Authorization system
+Actions / Services where appropriate
+Jobs
+Events
+Notifications
+Media Library
+Activity logging
+Validation rules where appropriate
+Shared UI/design tokens
+Shared reusable components where appropriate
+```
+
+Not shared:
+
+```text
+Presentation (layouts, views)
+Routing
+Navigation
+Authorization boundaries specific to each area
+```
+
+Do not duplicate business logic merely because these areas have different UIs. A Model, Action, Service, Job, Event, or validation rule written for one area should be reused by the others whenever the underlying operation is the same.
+
+---
+
+# 7. Module Architecture — Public and Admin Interfaces
+
+Future business modules may have both a Public interface and an Admin interface.
+
+Example — a Hotel Booking module:
+
+```text
+Public
+    /rooms
+    /booking
+
+Admin
+    /admin/rooms
+    /admin/bookings
+```
+
+Example — an Events module:
+
+```text
+Public
+    /events
+
+Admin
+    /admin/events
+```
+
+The underlying domain/application logic (Models, Actions, Services, Jobs, Events) remains shared and reusable between both interfaces, consistent with Shared Application Layers.
+
+Do not create these example modules. They illustrate the intended pattern only.
+
+For applications complex enough to warrant internal domain folders (see Domain Modules), the Public/Admin split remains a separate, complementary concern from that internal code organization.
+
+---
+
+# 8. Admin Application Responsibilities
+
+The Admin Application is the primary management interface for:
+
+```text
+Users
+Roles
+Permissions
+Settings
+Media
+Activity logs
+Future business modules
+```
+
+These are architectural responsibilities, not implemented functionality. Do not implement Users, Roles, Permissions, Settings, Media, or Activity Log management interfaces as part of documentation-only work.
+
+---
+
+# 9. User Profile vs User Management
+
+User Profile and User Management are different concerns.
+
+```text
+User Profile
+    An authenticated user managing their own account.
+
+User Management
+    An authorized administrator managing other users' accounts.
+```
+
+Profile is part of the Authenticated Member Application. It uses `layouts.app` and is accessible from the Member shell's user menu — it is intentionally not part of the Admin Application.
+
+User Management (listing, creating, editing, deactivating, and assigning roles to other users) is an administrative capability that belongs to the Admin Application.
+
+A user editing their own name and email is never the same operation as an administrator editing another user's account, even when both eventually reuse the same underlying Model and validation rules.
+
+Do not implement User Management as part of documentation-only work.
+
+---
+
+# 10. Directory Structure
 
 The base application uses the following structure:
 
@@ -104,7 +461,7 @@ Additional Laravel directories remain in their normal locations.
 
 ---
 
-# 4. Actions
+# 11. Actions
 
 Location:
 
@@ -149,7 +506,7 @@ Do not turn every model operation into an Action.
 
 ---
 
-# 5. Action Structure
+# 12. Action Structure
 
 Where an Action is appropriate:
 
@@ -175,7 +532,7 @@ Actions should not become enormous classes containing unrelated operations.
 
 ---
 
-# 6. Services
+# 13. Services
 
 Location:
 
@@ -212,7 +569,7 @@ unless the class genuinely contains reusable domain logic that doesn't belong in
 
 ---
 
-# 7. Models
+# 14. Models
 
 Location:
 
@@ -248,7 +605,7 @@ Prefer an Action.
 
 ---
 
-# 8. Policies
+# 15. Policies
 
 Location:
 
@@ -288,7 +645,7 @@ Role/permission checks remain backed by Spatie Permission.
 
 ---
 
-# 9. Roles and Permissions
+# 16. Roles and Permissions
 
 Spatie Laravel Permission is the authorization foundation.
 
@@ -344,7 +701,7 @@ Do not use roles directly when a policy or permission is more appropriate.
 
 ---
 
-# 10. Permission Naming Convention
+# 17. Permission Naming Convention
 
 Permissions use:
 
@@ -382,7 +739,7 @@ Use lowercase kebab-case for multi-word actions.
 
 ---
 
-# 11. Livewire Architecture
+# 18. Livewire Architecture
 
 Location:
 
@@ -392,49 +749,52 @@ app/Livewire/
 
 Livewire is the primary application UI framework.
 
-Organize components by feature.
+Authentication components live under `Auth/`, Admin Application components live under `Admin/` organized by feature, and Member-facing components (`Dashboard.php`, `Profile.php`) live directly under `app/Livewire/`, as described in Application Area File Organization.
 
 Example:
 
 ```text
 app/Livewire/
-└── Customers/
-    ├── Index.php
-    ├── Create.php
-    ├── Edit.php
-    └── Show.php
+└── Admin/
+    └── Customers/
+        ├── Index.php
+        ├── Create.php
+        ├── Edit.php
+        └── Show.php
 ```
 
 For larger features:
 
 ```text
 app/Livewire/
-└── Bookings/
-    ├── Index.php
-    ├── Create.php
-    ├── Edit.php
-    ├── Show.php
-    ├── Calendar.php
-    └── Components/
-        ├── BookingForm.php
-        ├── BookingStatus.php
-        └── BookingTimeline.php
+└── Admin/
+    └── Bookings/
+        ├── Index.php
+        ├── Create.php
+        ├── Edit.php
+        ├── Show.php
+        ├── Calendar.php
+        └── Components/
+            ├── BookingForm.php
+            ├── BookingStatus.php
+            └── BookingTimeline.php
 ```
 
 ---
 
-# 12. Livewire Views
+# 19. Livewire Views
 
-Views mirror the Livewire component structure.
+Views mirror the Livewire component structure, including the application-area directory.
 
 ```text
 resources/views/
 └── livewire/
-    └── customers/
-        ├── index.blade.php
-        ├── create.blade.php
-        ├── edit.blade.php
-        └── show.blade.php
+    └── admin/
+        └── customers/
+            ├── index.blade.php
+            ├── create.blade.php
+            ├── edit.blade.php
+            └── show.blade.php
 ```
 
 For nested components:
@@ -442,16 +802,17 @@ For nested components:
 ```text
 resources/views/
 └── livewire/
-    └── bookings/
-        └── components/
-            ├── booking-form.blade.php
-            ├── booking-status.blade.php
-            └── booking-timeline.blade.php
+    └── admin/
+        └── bookings/
+            └── components/
+                ├── booking-form.blade.php
+                ├── booking-status.blade.php
+                └── booking-timeline.blade.php
 ```
 
 ---
 
-# 13. Livewire Responsibilities
+# 20. Livewire Responsibilities
 
 A Livewire component may handle:
 
@@ -487,7 +848,7 @@ Livewire
 
 ---
 
-# 14. Livewire Forms
+# 21. Livewire Forms
 
 For complex forms, use dedicated Form Objects where they improve clarity.
 
@@ -509,7 +870,7 @@ Do not create a Form Object for a tiny two-field form merely for consistency.
 
 ---
 
-# 15. Validation
+# 22. Validation
 
 Validation must happen at the application boundary.
 
@@ -533,7 +894,7 @@ Authorization and validation are separate concerns.
 
 ---
 
-# 16. UI Architecture
+# 23. UI Architecture
 
 The UI stack is:
 
@@ -547,13 +908,15 @@ Mary UI
 Tailwind CSS / daisyUI
 ```
 
+This stack is shared identically across the Guest/Public Website, the Authenticated Member Application, and the Admin Application (see Application Areas: Guest, Member, and Admin). Only layout, navigation, and page structure differ between them.
+
 Mary UI is the primary reusable component library.
 
 The application should avoid unnecessary coupling to third-party component implementation details.
 
 ---
 
-# 17. 8bit UI Components
+# 24. 8bit UI Components
 
 Reusable components should live under:
 
@@ -580,7 +943,7 @@ Do not wrap every Mary UI component unnecessarily.
 
 ---
 
-# 18. UI Design Principles
+# 25. UI Design Principles
 
 The starter uses:
 
@@ -598,7 +961,7 @@ Business applications should feel like members of the same 8bit product family.
 
 ---
 
-# 19. Page Layout
+# 26. Page Layout
 
 Application pages should generally follow:
 
@@ -634,9 +997,11 @@ Manage customer records.
 └──────────────────────────────────────────────┘
 ```
 
+This pattern describes Admin Application and authenticated Member Application pages. Guest/Public Website pages follow their own, simpler page conventions once the Public Website is implemented.
+
 ---
 
-# 20. CRUD Architecture
+# 27. CRUD Architecture
 
 A standard CRUD should normally contain:
 
@@ -672,7 +1037,7 @@ customers/
 
 ---
 
-# 21. CRUD Index Requirements
+# 28. CRUD Index Requirements
 
 Where appropriate, index pages should support:
 
@@ -692,7 +1057,7 @@ A simple table should remain simple.
 
 ---
 
-# 22. Tables
+# 29. Tables
 
 Tables should have consistent:
 
@@ -710,7 +1075,7 @@ For very wide datasets, provide an appropriate responsive strategy rather than a
 
 ---
 
-# 23. Notifications
+# 30. Notifications
 
 The starter does not use Livewire Alert.
 
@@ -747,7 +1112,7 @@ Business code should not depend directly on a specific JavaScript notification l
 
 ---
 
-# 24. Confirmation Dialogs
+# 31. Confirmation Dialogs
 
 Destructive actions should use confirmation dialogs.
 
@@ -767,7 +1132,7 @@ Never perform destructive operations from a UI without appropriate confirmation 
 
 ---
 
-# 25. Settings Architecture
+# 32. Settings Architecture
 
 Settings are global application configuration stored in the database.
 
@@ -804,7 +1169,7 @@ or the finalized 8bit Settings API.
 
 ---
 
-# 26. Media Architecture
+# 33. Media Architecture
 
 Spatie Media Library is the media foundation.
 
@@ -825,7 +1190,7 @@ Media should be accessed through Media Library rather than direct filesystem man
 
 ---
 
-# 27. Activity Architecture
+# 34. Activity Architecture
 
 Where Activitylog is enabled, activity tracking should be applied selectively.
 
@@ -848,7 +1213,7 @@ Sensitive data should not be written into activity logs unnecessarily.
 
 ---
 
-# 28. Events and Listeners
+# 35. Events and Listeners
 
 Use Laravel Events when:
 
@@ -878,7 +1243,7 @@ Do not create events merely to add ceremony to simple CRUD.
 
 ---
 
-# 29. Jobs
+# 36. Jobs
 
 Location:
 
@@ -911,7 +1276,7 @@ Keep HTTP/Livewire requests fast whenever practical.
 
 ---
 
-# 30. Database Transactions
+# 37. Database Transactions
 
 Use transactions for operations that must succeed or fail together.
 
@@ -933,7 +1298,7 @@ Do not use transactions blindly around every database operation.
 
 ---
 
-# 31. Enums
+# 38. Enums
 
 Location:
 
@@ -962,7 +1327,7 @@ over scattered magic strings.
 
 ---
 
-# 32. Data Objects
+# 39. Data Objects
 
 Location:
 
@@ -983,7 +1348,7 @@ Do not introduce DTOs for every model.
 
 ---
 
-# 33. API Architecture
+# 40. API Architecture
 
 When Sanctum/API support is enabled:
 
@@ -1006,7 +1371,7 @@ Do not expose internal database structure unnecessarily.
 
 ---
 
-# 34. External Integrations
+# 41. External Integrations
 
 External services should be isolated.
 
@@ -1045,7 +1410,7 @@ Provider API
 
 ---
 
-# 35. Configuration
+# 42. Configuration
 
 Application configuration belongs in:
 
@@ -1069,16 +1434,24 @@ Never hard-code:
 
 ---
 
-# 36. Routes
+# 43. Routes
 
 Use normal Laravel route organization.
 
 ```text
 routes/
 ├── web.php
+├── auth.php
+├── admin.php
 ├── console.php
 └── api.php
 ```
+
+`web.php`: Guest/Public website routes, plus Authenticated Member Application routes (`/dashboard`, `/profile`).
+
+`auth.php`: Authentication routes (login, registration, password reset, email verification, logout). Already established in this starter.
+
+`admin.php`: Admin Application routes, registered under the `/admin` prefix. See Admin Route Structure. Already established in this starter, currently registering only the Admin Dashboard.
 
 Admin routes should use a consistent prefix:
 
@@ -1090,12 +1463,24 @@ and appropriate authentication/authorization middleware.
 
 ---
 
-# 37. Admin Route Structure
+# 44. Admin Route Structure
 
-Recommended:
+Admin routes belong in a dedicated route file:
+
+```text
+routes/admin.php
+```
+
+registered from `routes/web.php` the same way authentication routes are already registered:
 
 ```php
-Route::middleware(['auth'])
+require __DIR__.'/admin.php';
+```
+
+Recommended route group:
+
+```php
+Route::middleware(['auth', 'verified'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -1103,13 +1488,45 @@ Route::middleware(['auth'])
     });
 ```
 
+`routes/admin.php` currently registers the Admin Dashboard only. Additional Admin routes (Users, Roles, Permissions, Settings) are added as those features are actually implemented, not merely to satisfy this document.
+
 Individual resources should additionally enforce authorization.
 
 Authentication alone is not authorization.
 
+## Authentication vs Authorization
+
+These are separate questions:
+
+```text
+Authentication
+    Who is the user?
+
+Authorization
+    What is the user allowed to do?
+```
+
+The Admin Application is not:
+
+```text
+authenticated → access everything
+```
+
+Every Admin route and action must additionally enforce authorization, using the authorization architecture already established in this document (see Roles and Permissions, Policies).
+
+The eventual Admin authorization system combines:
+
+```text
+Laravel authorization conventions (Policies, Gates)
++
+Spatie Laravel Permission
+```
+
+Phase 3 establishes the exact permission set, roles, and policy implementation. Do not implement authorization middleware, permissions, or roles as part of documentation-only work.
+
 ---
 
-# 38. Middleware
+# 45. Middleware
 
 Use middleware for cross-cutting HTTP concerns.
 
@@ -1126,7 +1543,7 @@ Do not put business operations into middleware.
 
 ---
 
-# 39. Exceptions
+# 46. Exceptions
 
 Use Laravel's exception system.
 
@@ -1144,7 +1561,7 @@ Avoid creating custom exception classes for every possible error.
 
 ---
 
-# 40. Caching
+# 47. Caching
 
 Use Laravel's Cache abstraction.
 
@@ -1162,7 +1579,7 @@ without rewriting application code.
 
 ---
 
-# 41. Queues
+# 48. Queues
 
 The base starter uses:
 
@@ -1178,7 +1595,7 @@ Queue-specific infrastructure must remain optional.
 
 ---
 
-# 42. Scheduling
+# 49. Scheduling
 
 Use Laravel's scheduler.
 
@@ -1193,7 +1610,7 @@ Long-running scheduled work should dispatch Jobs instead of doing everything ins
 
 ---
 
-# 43. Search
+# 50. Search
 
 Basic database search is the default.
 
@@ -1203,7 +1620,7 @@ Do not introduce an external search engine unless the application actually requi
 
 ---
 
-# 44. Reporting
+# 51. Reporting
 
 Reports should be implemented according to project requirements.
 
@@ -1222,7 +1639,7 @@ as optional modules.
 
 ---
 
-# 45. Multi-Tenancy
+# 52. Multi-Tenancy
 
 Multi-tenancy is explicitly excluded from v1 core architecture.
 
@@ -1238,7 +1655,7 @@ to every base table simply because future projects may need it.
 
 ---
 
-# 46. Domain Modules
+# 53. Domain Modules
 
 Small and medium applications should use normal Laravel structure.
 
@@ -1259,9 +1676,11 @@ Do not introduce domain modules prematurely.
 
 The trigger should be actual application complexity, not architectural fashion.
 
+This internal complexity axis is independent of, and complementary to, the Public/Admin interface split described in Module Architecture — Public and Admin Interfaces.
+
 ---
 
-# 47. Dependency Direction
+# 54. Dependency Direction
 
 Preferred dependency direction:
 
@@ -1301,7 +1720,7 @@ Avoid circular dependencies.
 
 ---
 
-# 48. Business Logic Rule
+# 55. Business Logic Rule
 
 Business logic must have a clear home.
 
@@ -1322,7 +1741,7 @@ Use:
 
 ---
 
-# 49. Testing Architecture
+# 56. Testing Architecture
 
 Tests mirror application behavior.
 
@@ -1352,7 +1771,7 @@ Unit tests are appropriate for isolated logic.
 
 ---
 
-# 50. Claude Code Architecture Rules
+# 57. Claude Code Architecture Rules
 
 Claude Code must follow this architecture.
 
@@ -1371,7 +1790,7 @@ Do not create abstractions merely because they appear architecturally elegant.
 
 ---
 
-# 51. Claude Code — Package Rules
+# 58. Claude Code — Package Rules
 
 Claude Code must not install a new Composer or NPM package without:
 
@@ -1385,7 +1804,7 @@ Claude Code must not install a new Composer or NPM package without:
 
 ---
 
-# 52. Claude Code — Modification Rules
+# 59. Claude Code — Modification Rules
 
 Before changing core infrastructure:
 
@@ -1407,7 +1826,7 @@ Do not migrate from one package/library to another simply because a newer altern
 
 ---
 
-# 53. Claude Code — New Feature Workflow
+# 60. Claude Code — New Feature Workflow
 
 For a new feature:
 
@@ -1451,7 +1870,7 @@ Do not add unnecessary Actions/Services.
 
 ---
 
-# 54. Security Rule
+# 61. Security Rule
 
 Claude Code must never bypass authorization, validation, or security controls merely to make a feature work.
 
@@ -1480,7 +1899,7 @@ Always consider:
 
 ---
 
-# 55. Performance Rule
+# 62. Performance Rule
 
 Optimize based on actual requirements.
 
@@ -1500,7 +1919,7 @@ Use eager loading where appropriate.
 
 ---
 
-# 56. Database Design
+# 63. Database Design
 
 Database schema should prioritize:
 
@@ -1517,7 +1936,7 @@ Business-specific schema belongs to the application, not the starter.
 
 ---
 
-# 57. Naming Conventions
+# 64. Naming Conventions
 
 Use standard Laravel naming.
 
@@ -1559,7 +1978,7 @@ kebab-case
 
 ---
 
-# 58. Git-Friendly Architecture
+# 65. Git-Friendly Architecture
 
 Generated files should be deterministic and easy to review.
 
@@ -1571,7 +1990,7 @@ Changes should be small enough to understand in a pull request.
 
 ---
 
-# 59. Upgradeability
+# 66. Upgradeability
 
 The starter must remain close to upstream Laravel conventions.
 
@@ -1585,7 +2004,7 @@ When Laravel provides a feature that replaces a custom implementation, prefer th
 
 ---
 
-# 60. Final Architecture Principle
+# 67. Final Architecture Principle
 
 The 8bit Laravel Starter should feel like:
 
