@@ -3,13 +3,29 @@
 use App\Models\User;
 use Spatie\Permission\Models\Permission;
 
-it('hides roles and permissions navigation from a user without those permissions', function () {
+it('hides users, roles, and permissions navigation from a user without those permissions', function () {
     $user = User::factory()->create();
     $user->givePermissionTo(Permission::create(['name' => 'access dashboard']));
 
     $this->actingAs($user)
         ->get(route('admin.dashboard'))
         ->assertOk()
+        ->assertDontSee('Users')
+        ->assertDontSee('Roles')
+        ->assertDontSee('Permissions');
+});
+
+it('shows users navigation only to a user with the view users permission', function () {
+    $user = User::factory()->create();
+    $user->givePermissionTo([
+        Permission::create(['name' => 'access dashboard']),
+        Permission::create(['name' => 'view users']),
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('admin.dashboard'))
+        ->assertOk()
+        ->assertSee('Users')
         ->assertDontSee('Roles')
         ->assertDontSee('Permissions');
 });

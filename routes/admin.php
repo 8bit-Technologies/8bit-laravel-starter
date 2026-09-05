@@ -3,6 +3,7 @@
 use App\Livewire\Admin\Dashboard;
 use App\Livewire\Admin\Permissions;
 use App\Livewire\Admin\Roles;
+use App\Livewire\Admin\Users;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])
@@ -12,6 +13,18 @@ Route::middleware(['auth', 'verified'])
         Route::get('dashboard', Dashboard::class)
             ->name('dashboard')
             ->middleware('can:access dashboard');
+
+        Route::middleware('can:view users')->group(function () {
+            Route::get('users', Users\Index::class)->name('users.index');
+        });
+
+        Route::middleware('can:create users')->group(function () {
+            Route::get('users/create', Users\Create::class)->name('users.create');
+        });
+
+        Route::middleware('can:update users')->group(function () {
+            Route::get('users/{user}/edit', Users\Edit::class)->name('users.edit');
+        });
 
         Route::middleware('can:view roles')->group(function () {
             Route::get('roles', Roles\Index::class)->name('roles.index');

@@ -8,7 +8,7 @@
     </x-8bit.page-header>
 
     <x-card class="mt-5" shadow>
-        <x-input placeholder="Search permissions..." wire:model.live.debounce.400ms="search" icon="o-magnifying-glass" clearable class="max-w-sm mb-4" />
+        <x-input placeholder="Search permissions..." wire:model.live.debounce.400ms="search" icon="o-magnifying-glass" clearable class="max-w-sm" />
 
         <x-table :headers="$headers" :rows="$permissions" with-pagination show-empty-text empty-text="No permissions yet.">
             @scope('actions', $permission)

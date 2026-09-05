@@ -41,4 +41,17 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasRole(SystemRole::SuperAdmin->value);
     }
+
+    /**
+     * Whether this user is the sole remaining Super Admin. This hard
+     * invariant must be checked unconditionally wherever a mutation could
+     * remove Super Admin protection — it is never expressed as a Gate
+     * ability, so it is never bypassed by the Gate::before Super Admin
+     * shortcut. See PHASE-3-ROLES-PERMISSIONS.md §19.
+     */
+    public function isTheLastSuperAdmin(): bool
+    {
+        return $this->isSuperAdmin()
+            && self::role(SystemRole::SuperAdmin->value)->count() === 1;
+    }
 }

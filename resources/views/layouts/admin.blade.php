@@ -26,8 +26,12 @@
                      same way once their modules and routes exist, e.g. gated behind
                      @can('view properties'), @can('view tour bookings'), and so on. --}}
 
-                @if (auth()->user()->canAny(['view roles', 'view permissions']))
+                @if (auth()->user()->canAny(['view users', 'view roles', 'view permissions']))
                     <x-menu-title title="Users" />
+
+                    @can('view users')
+                        <x-menu-item title="Users" icon="o-users" route="admin.users.index" />
+                    @endcan
 
                     @can('view roles')
                         <x-menu-item title="Roles" icon="o-user-group" route="admin.roles.index" />
