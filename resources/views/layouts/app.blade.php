@@ -44,6 +44,10 @@
 
                         <x-menu-item title="Profile" icon="o-user-circle" route="profile" />
 
+                        @can('access dashboard')
+                            <x-menu-item title="Admin Panel" icon="o-shield-check" route="admin.dashboard" />
+                        @endcan
+
                         <x-menu-separator />
 
                         <li>

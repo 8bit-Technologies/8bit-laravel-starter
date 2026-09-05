@@ -617,26 +617,40 @@ The backend operation must also enforce authorization.
 Permission names follow:
 
 ```text
-resource.action
+{verb} {resource}
+```
+
+The permission name is the exact Laravel authorization ability — there is no separate internal identifier or dot-notation form to keep in sync. The same string is used everywhere authorization is checked:
+
+```php
+@can('access dashboard')
+
+auth()->user()->can('access dashboard')
+
+Route::middleware('can:access dashboard')
 ```
 
 Examples:
 
 ```text
-customers.view
-customers.create
-customers.update
-customers.delete
+access dashboard
+
+view users
+create users
+update users
+delete users
 ```
 
 Special actions:
 
 ```text
-bookings.confirm
-bookings.cancel
-bookings.check-in
-bookings.check-out
+confirm bookings
+cancel bookings
+check in bookings
+check out bookings
 ```
+
+Do not use dot notation (`resource.action`) for permission names, and do not introduce a second internal permission identifier separate from the display name. See `PHASE-3-ROLES-PERMISSIONS.md` for the full authorization architecture this convention supports.
 
 ---
 
@@ -706,7 +720,7 @@ if ($user->role === 'admin') {
 Prefer:
 
 ```php
-$user->can('customers.delete')
+$user->can('delete customers')
 ```
 
 or appropriate policy authorization.

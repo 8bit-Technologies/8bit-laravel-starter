@@ -15,6 +15,16 @@ it('allows an authenticated verified user to access the dashboard', function () 
         ->assertSee('Dashboard');
 });
 
+it('does not require the access dashboard permission', function () {
+    $user = User::factory()->create();
+
+    expect($user->can('access dashboard'))->toBeFalse();
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertOk();
+});
+
 it('redirects an unverified user to the email verification notice', function () {
     $user = User::factory()->unverified()->create();
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\SystemRole;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -29,5 +30,15 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * The single, centralized check for the protected Super Admin concept.
+     * No other file should perform a raw hasRole('Super Admin') comparison
+     * — see PHASE-3-ROLES-PERMISSIONS.md §6.1, Rule 1.
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole(SystemRole::SuperAdmin->value);
     }
 }

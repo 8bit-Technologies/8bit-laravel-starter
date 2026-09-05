@@ -666,9 +666,9 @@ Answers:
 Example:
 
 ```text
-customers.create
-customers.update
-customers.delete
+create customers
+update customers
+delete customers
 ```
 
 ### Policy
@@ -691,10 +691,10 @@ Example:
 
 ```text
 Manager
-    customers.view
-    customers.create
-    customers.update
-    reports.view
+    view customers
+    create customers
+    update customers
+    view reports
 ```
 
 Do not use roles directly when a policy or permission is more appropriate.
@@ -706,36 +706,50 @@ Do not use roles directly when a policy or permission is more appropriate.
 Permissions use:
 
 ```text
-resource.action
+{verb} {resource}
+```
+
+The permission name is not merely a display label — it **is** the Laravel authorization ability itself, with no separate internal identifier. The same exact string is used everywhere authorization is checked:
+
+```php
+@can('access dashboard')
+
+auth()->user()->can('access dashboard')
+
+Route::middleware('can:access dashboard')
 ```
 
 Examples:
 
 ```text
-users.view
-users.create
-users.update
-users.delete
+access dashboard
 
-roles.view
-roles.create
-roles.update
-roles.delete
+view users
+create users
+update users
+delete users
 
-settings.view
-settings.update
+view roles
+create roles
+update roles
+delete roles
+
+view permissions
+create permissions
+update permissions
+delete permissions
 ```
 
 For specialized operations:
 
 ```text
-bookings.confirm
-bookings.cancel
-bookings.check-in
-bookings.check-out
+confirm bookings
+cancel bookings
+check in bookings
+check out bookings
 ```
 
-Use lowercase kebab-case for multi-word actions.
+Use lowercase, space-separated phrases, verb first. Do not use dot notation (`resource.action`) — that earlier convention has been superseded by the `{verb} {resource}` form documented here and detailed further in `PHASE-3-ROLES-PERMISSIONS.md`.
 
 ---
 
