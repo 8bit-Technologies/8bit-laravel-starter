@@ -6,8 +6,30 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Event;
 use Livewire\Livewire;
 
-it('renders the registration page', function () {
+it('does not allow registration when the feature is disabled by default', function () {
+    expect(config('features.registration_enabled'))->toBeFalse();
+
+    $this->get(route('register'))->assertNotFound();
+});
+
+it('does not show a registration link on the login page by default', function () {
+    $this->get(route('login'))
+        ->assertOk()
+        ->assertDontSee('Sign up');
+});
+
+it('renders the registration page when the feature is enabled', function () {
+    config(['features.registration_enabled' => true]);
+
     $this->get(route('register'))->assertOk();
+});
+
+it('shows a registration link on the login page when the feature is enabled', function () {
+    config(['features.registration_enabled' => true]);
+
+    $this->get(route('login'))
+        ->assertOk()
+        ->assertSee('Sign up');
 });
 
 it('allows a new user to register', function () {

@@ -25,7 +25,19 @@ it('does not require the access dashboard permission', function () {
         ->assertOk();
 });
 
-it('redirects an unverified user to the email verification notice', function () {
+it('allows an unverified user to access the dashboard when email verification is disabled', function () {
+    expect(config('features.email_verification_enabled'))->toBeFalse();
+
+    $user = User::factory()->unverified()->create();
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertOk();
+});
+
+it('redirects an unverified user to the email verification notice when email verification is enabled', function () {
+    config(['features.email_verification_enabled' => true]);
+
     $user = User::factory()->unverified()->create();
 
     $this->actingAs($user)

@@ -11,7 +11,20 @@ it('redirects a guest to the login page', function () {
     $this->get(route('admin.users.index'))->assertRedirect(route('login'));
 });
 
-it('redirects an unverified user to the email verification notice', function () {
+it('allows an unverified authorized user to access the index when email verification is disabled', function () {
+    expect(config('features.email_verification_enabled'))->toBeFalse();
+
+    $user = User::factory()->unverified()->create();
+    $user->givePermissionTo(Permission::create(['name' => 'view users']));
+
+    $this->actingAs($user)
+        ->get(route('admin.users.index'))
+        ->assertOk();
+});
+
+it('redirects an unverified authorized user to the email verification notice when email verification is enabled', function () {
+    config(['features.email_verification_enabled' => true]);
+
     $user = User::factory()->unverified()->create();
     $user->givePermissionTo(Permission::create(['name' => 'view users']));
 

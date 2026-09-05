@@ -4,7 +4,9 @@ namespace App\Livewire;
 
 use App\Livewire\Concerns\Notifies;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -16,6 +18,12 @@ class Profile extends Component
     public string $name = '';
 
     public string $email = '';
+
+    public string $current_password = '';
+
+    public string $password = '';
+
+    public string $password_confirmation = '';
 
     public function mount(): void
     {
@@ -43,6 +51,22 @@ class Profile extends Component
         $user->save();
 
         $this->notifySuccess('Profile updated successfully.');
+    }
+
+    public function updatePassword(): void
+    {
+        $validated = $this->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
+        Auth::user()->forceFill([
+            'password' => Hash::make($validated['password']),
+        ])->save();
+
+        $this->reset('current_password', 'password', 'password_confirmation');
+
+        $this->notifySuccess('Password updated successfully.');
     }
 
     public function render()

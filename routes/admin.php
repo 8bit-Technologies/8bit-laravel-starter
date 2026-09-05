@@ -1,12 +1,13 @@
 <?php
 
+use App\Http\Middleware\EnsureEmailIsVerifiedIfRequired;
 use App\Livewire\Admin\Dashboard;
 use App\Livewire\Admin\Permissions;
 use App\Livewire\Admin\Roles;
 use App\Livewire\Admin\Users;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified'])
+Route::middleware(['auth', EnsureEmailIsVerifiedIfRequired::class])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {

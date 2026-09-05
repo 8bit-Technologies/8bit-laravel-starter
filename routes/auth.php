@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureRegistrationIsEnabled;
 use App\Livewire\Auth\ForgotPassword;
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Register;
@@ -11,7 +12,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
-    Route::get('register', Register::class)->name('register');
+    Route::get('register', Register::class)
+        ->name('register')
+        ->middleware(EnsureRegistrationIsEnabled::class);
+
     Route::get('login', Login::class)->name('login');
     Route::get('forgot-password', ForgotPassword::class)->name('password.request');
     Route::get('reset-password/{token}', ResetPassword::class)->name('password.reset');

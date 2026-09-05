@@ -26,8 +26,10 @@
         </x-slot:actions>
     </x-form>
 
-    <div class="text-center text-sm mt-6">
-        Don't have an account?
-        <a href="{{ route('register') }}" wire:navigate class="link link-hover font-semibold">Sign up</a>
-    </div>
+    @if (\App\Support\AuthenticationFeatures::registrationEnabled())
+        <div class="text-center text-sm mt-6">
+            Don't have an account?
+            <a href="{{ route('register') }}" wire:navigate class="link link-hover font-semibold">Sign up</a>
+        </div>
+    @endif
 </div>

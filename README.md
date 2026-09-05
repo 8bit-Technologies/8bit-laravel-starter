@@ -6,21 +6,54 @@ This is a starter, not a finished application. It gives you a working authorizat
 
 ## Features
 
-- **Laravel 13** application foundation, built close to Laravel's own conventions
-- **Livewire 4** as the primary interactive UI layer
-- **Mary UI**, **Tailwind CSS 4**, and **daisyUI 5** for a consistent, themeable component system
-- **Authentication** — login, registration, logout, password reset, and email verification
-- **Member Panel** (`/dashboard`, `/profile`) — a clean authenticated area for any signed-in user
-- **Admin Panel** (`/admin/*`) — a separate, permission-aware area with a grouped sidebar
-- **Roles & Permissions** — built on [Spatie Laravel Permission](https://spatie.be/docs/laravel-permission), with a dynamic Roles & Permissions manager
-- **Super Admin bypass** — a single, centralized `Gate::before` rule, not scattered role checks
-- **Protected permissions** — a fixed, developer-owned set of system permissions that can't be renamed, deleted, or hijacked through the UI
-- **User Management** — create, edit, and manage users, with role assignment
-- **Profile** — every authenticated user can manage their own name, email, and password
-- **Responsive UI** with dark mode support throughout
-- **Pest 4** for testing, **Laravel Pint** for formatting, **Larastan/PHPStan** for static analysis
+Everything below is implemented and working in this repository today — not a roadmap.
 
-This starter does not claim to be a full admin framework or a business application. It intentionally stops at the authorization/admin foundation — business modules (properties, bookings, billing, etc.) are for the project built on top of it.
+**Foundation**
+- Laravel 13 on the TALL stack (**T**ailwind, **A**lpine.js, **L**aravel, **L**ivewire — Alpine ships bundled with Livewire)
+- Livewire 4 as the primary interactive UI layer
+- Mary UI, Tailwind CSS 4, and daisyUI 5 for a consistent, responsive, themeable component system with dark mode
+- Vite for frontend asset bundling (`npm run build` / `npm run dev`)
+
+**Authentication**
+- Login, logout, and password reset
+- Optional public registration — **disabled by default**, toggled in `config/features.php`
+- Optional email-verification requirement — **disabled by default**, toggled in `config/features.php`
+- Profile management — every user updates their own name and email from `/profile`
+- Self-service password change — current password verified before a new one is accepted
+
+**Member Panel**
+- `/dashboard` and `/profile` behind a clean top-navigation layout with no sidebar — visually distinct from the Admin Panel
+
+**Admin Panel**
+- Separate `/admin/*` area with its own layout and a grouped, permission-aware sidebar
+- Navigation items appear only when the current user holds the matching permission — never a static, one-size-fits-all menu
+
+**Roles & Permissions Manager**
+- Full Roles and Permissions CRUD in the Admin Panel, built on [Spatie Laravel Permission](https://spatie.be/docs/laravel-permission)
+- Human-readable `{verb} {resource}` permission naming (`view users`, `create roles`, `access dashboard`, ...) — no dot notation, no separate internal identifier
+- A fixed, developer-owned set of protected/system permissions (`config/permissions.php`) that can never be renamed, deleted, or duplicated through the UI, by anyone
+- A protected Super Admin role that can never be renamed, deleted, or recreated through the UI
+- A single, centralized `Gate::before` Super Admin bypass — no `hasRole('Super Admin')` or `isSuperAdmin()` checks scattered through the app
+- Authorization enforced with Laravel-native `can:` route middleware and Blade `@can(...)` checks — UI visibility is never the only guard
+
+**User Management**
+- Create, edit, and delete users from the Admin Panel, with search and pagination
+- Dynamic role assignment loaded from the database — the Super Admin role is only assignable by an existing Super Admin
+- Built-in protection rules: a user can never delete their own account, and the last remaining Super Admin can never be deleted or demoted, including by themselves
+
+**Bootstrapping**
+- `php artisan 8bit:create-super-admin` — the only way to create the first Super Admin account
+
+**Quality tooling**
+- Pest 4 for testing, Laravel Pint for formatting, Larastan/PHPStan for static analysis, Vite for the frontend build
+
+**Public release**
+- MIT licensed
+- Composer metadata (`name`, `description`, `type`, `keywords`) configured for Packagist and the `laravel new --using=...` installer workflow
+
+### Planned / future modules
+
+This starter intentionally stops at the authentication/authorization/admin foundation. Properties, Bookings, Calendar, Guests, Tours, Finance, and Settings are **not implemented** — they exist only as illustrative examples in this repository's internal design documents of the kind of business modules a project built on this starter is expected to add for itself.
 
 ## Requirements
 
@@ -112,10 +145,28 @@ Authentication is built on Laravel's own primitives with Livewire components (`a
 
 - `GET /login`, `POST /login` — session login
 - `POST /logout` — logout
-- `GET /register`, `POST /register` — registration
+- `GET /register`, `POST /register` — registration (see below — disabled by default)
 - `GET /forgot-password`, `POST /forgot-password` — password reset request
 - `GET /reset-password/{token}`, `POST /reset-password` — password reset
-- Email verification notice and verification link handling
+- Email verification notice and verification link handling (see below — not required by default)
+
+### Registration and email verification are optional
+
+Not every application built on this starter wants public self-registration or mandatory email verification — many are internal or invite-only, with every account created by an administrator through User Management. Both behaviors are controlled independently through `config/features.php`:
+
+```php
+// config/features.php
+return [
+    'registration_enabled' => false,
+    'email_verification_enabled' => false,
+];
+```
+
+Both default to **disabled**. Nothing is deleted when disabled — the `Register` and `VerifyEmail` Livewire components, their views, and routes all remain in the codebase; only reachability changes.
+
+**Registration** (`registration_enabled`): when disabled, `/register` returns a 404 and the "Sign up" link is hidden from the login page. Set it to `true` to restore both. This is enforced by a small `EnsureRegistrationIsEnabled` middleware on the `/register` route, so the check lives in one place rather than inside the Livewire component.
+
+**Email verification** (`email_verification_enabled`): when disabled, `/dashboard`, `/profile`, and the entire Admin area (`/admin/*`) only require authentication (`auth`), matching Laravel's own convention of composing middleware. When enabled, they additionally require a verified email (`auth` + `verified`), exactly as Laravel ships by default. This is enforced by an `EnsureEmailIsVerifiedIfRequired` middleware that wraps Laravel's native `verified` middleware — when the feature is disabled it's a pass-through; when enabled it defers entirely to Laravel's own verification check. The Admin area's permission-based authorization (`can:access dashboard`, Roles/Permissions/User Management rules) is unaffected either way — this setting only ever adds or removes the verification requirement, never the authorization requirement.
 
 ## Member Panel
 
