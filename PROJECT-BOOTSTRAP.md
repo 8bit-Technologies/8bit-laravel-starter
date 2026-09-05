@@ -269,18 +269,18 @@ Create a dedicated permission seeder.
 Example conceptual permissions:
 
 ```text
-users.view
-users.create
-users.update
-users.delete
+view users
+create users
+update users
+delete users
 
-roles.view
-roles.create
-roles.update
-roles.delete
+view roles
+create roles
+update roles
+delete roles
 
-settings.view
-settings.update
+view settings
+update settings
 ```
 
 The exact permission set may evolve.

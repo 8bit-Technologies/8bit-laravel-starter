@@ -1,9 +1,9 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
-    "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "name": "8bit-technologies/8bit-laravel-starter",
+    "type": "laravel-starter",
+    "description": "An opinionated Laravel starter kit with authentication, member and admin panels, roles and permissions, user management, and a clean foundation for building modern applications.",
+    "keywords": ["laravel", "starter-kit", "boilerplate"],
     "license": "MIT",
     "require": {
         "php": "^8.3",

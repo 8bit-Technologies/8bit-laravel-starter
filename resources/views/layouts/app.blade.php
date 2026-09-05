@@ -11,26 +11,15 @@
 <body class="min-h-screen font-sans antialiased bg-base-200">
 
     <x-main>
-        <x-slot:sidebar drawer="main-drawer" class="bg-base-100 lg:bg-inherit">
-            <div class="px-5 pt-4 pb-2">
-                <x-8bit.app-brand />
-            </div>
-
-            <x-menu activate-by-route>
-                <x-menu-item title="Dashboard" icon="o-squares-2x2" route="dashboard" />
-                <x-menu-item title="Profile" icon="o-user-circle" route="profile" />
-            </x-menu>
-        </x-slot:sidebar>
-
         <x-slot:content>
             <x-nav sticky class="rounded-box mb-5">
                 <x-slot:brand>
-                    <label for="main-drawer" class="lg:hidden">
-                        <x-icon name="o-bars-3" class="cursor-pointer" />
-                    </label>
+                    <x-8bit.app-brand />
                 </x-slot:brand>
 
                 <x-slot:actions>
+                    <x-button label="Dashboard" icon="o-squares-2x2" link="{{ route('dashboard') }}" class="btn-ghost" responsive />
+
                     <x-theme-toggle />
 
                     <x-dropdown right>
