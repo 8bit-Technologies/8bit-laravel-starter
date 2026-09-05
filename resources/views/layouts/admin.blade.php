@@ -17,8 +17,26 @@
             </div>
 
             <x-menu activate-by-route>
-                <x-menu-item title="Dashboard" icon="o-squares-2x2" route="admin.dashboard" />
-                <x-menu-item title="Profile" icon="o-user-circle" route="profile" />
+                @can('access dashboard')
+                    <x-menu-title title="Platform" />
+                    <x-menu-item title="Dashboard" icon="o-squares-2x2" route="admin.dashboard" />
+                @endcan
+
+                {{-- Accommodation, Tours, Finance, and Settings groups are added the
+                     same way once their modules and routes exist, e.g. gated behind
+                     @can('view properties'), @can('view tour bookings'), and so on. --}}
+
+                @if (auth()->user()->canAny(['view roles', 'view permissions']))
+                    <x-menu-title title="Users" />
+
+                    @can('view roles')
+                        <x-menu-item title="Roles" icon="o-user-group" route="admin.roles.index" />
+                    @endcan
+
+                    @can('view permissions')
+                        <x-menu-item title="Permissions" icon="o-key" route="admin.permissions.index" />
+                    @endcan
+                @endif
             </x-menu>
         </x-slot:sidebar>
 

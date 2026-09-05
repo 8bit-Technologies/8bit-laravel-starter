@@ -5,7 +5,7 @@
 **Starter:** 8bit Laravel Starter
 **Status:** Design only. Nothing in this document is implemented yet.
 **Depends on:** Spatie Laravel Permission `^8.0` (installed), Laravel authorization (Policies/Gates), Spatie Laravel Activitylog `^4.12` (installed)
-**Revision note:** This revision replaces the two-layer "Gate ability backed by a dot-notation Spatie permission" design from the previous version of this document with a single-layer design approved directly from UX reference screenshots: the permission's human-readable name **is** the Gate ability, with no separate internal identifier. See Section 26 for the resulting documentation contradiction this creates with `ARCHITECTURE.md`/`CONVENTIONS.md`, reported rather than silently resolved.
+**Revision note:** This revision replaces the two-layer "Gate ability backed by a dot-notation Spatie permission" design from the previous version of this document with a single-layer design approved directly from UX reference screenshots: the permission's human-readable name **is** the Gate ability, with no separate internal identifier. See Section 26 for the documentation contradiction this initially created with `ARCHITECTURE.md`/`CONVENTIONS.md` — reported at the time rather than silently resolved, and since reconciled by explicit project-owner instruction; all three documents now agree.
 
 ---
 
@@ -953,13 +953,13 @@ Phase 3 implementation begins only after this document is reviewed and approved.
 
 # 26. Documentation Consistency Check
 
-## 26.1 Contradiction found and reported, not silently resolved
+## 26.1 Contradiction found, reported, and since resolved
 
-**`ARCHITECTURE.md` §17 (Permission Naming Convention) and `CONVENTIONS.md` §25 (Permissions)** both establish `resource.action` dot-notation as the permission naming convention for this starter (`customers.view`, `users.create`, `bookings.confirm`, etc.), and the previous revision of this document followed that convention directly (`admin.dashboard`, `users.view`).
+**`ARCHITECTURE.md` §17 (Permission Naming Convention) and `CONVENTIONS.md` §25 (Permissions)** previously established `resource.action` dot-notation as the permission naming convention for this starter (`customers.view`, `users.create`, `bookings.confirm`, etc.), and the previous revision of this document followed that convention directly (`admin.dashboard`, `users.view`).
 
-**This revision's approved UX explicitly requires human-readable, space-separated permission names instead** (`access dashboard`, `view users`) — stated directly in the brief this revision implements, including the explicit instruction that the Admin Dashboard permission "is therefore `access dashboard`, not `admin.dashboard`." This is a genuine, direct contradiction with the currently-written text of `ARCHITECTURE.md` §17 and `CONVENTIONS.md` §25, not a misreading.
+**This revision's approved UX required human-readable, space-separated permission names instead** (`access dashboard`, `view users`) — stated directly in the brief this revision implements, including the explicit instruction that the Admin Dashboard permission "is therefore `access dashboard`, not `admin.dashboard`." At the time this revision was written, that was a genuine, direct contradiction with the then-current text of `ARCHITECTURE.md` §17 and `CONVENTIONS.md` §25, not a misreading.
 
-Per the instruction accompanying this revision ("Only update: PHASE-3-ROLES-PERMISSIONS.md. Do not modify other documentation unless a direct contradiction is discovered."), and consistent with how every prior contradiction in this project has been handled (reported for an explicit decision rather than silently resolved), **`ARCHITECTURE.md` and `CONVENTIONS.md` have not been modified.** They still describe dot-notation as the convention. This document now describes and requires human-readable names for the roles/permissions system specifically. Reconciling the two documents — updating `ARCHITECTURE.md` §17 and `CONVENTIONS.md` §25 to match, once this approach is confirmed — is a follow-up decision for the project owner, not made unilaterally here.
+Per the instruction accompanying this revision ("Only update: PHASE-3-ROLES-PERMISSIONS.md. Do not modify other documentation unless a direct contradiction is discovered."), the contradiction was reported here rather than silently resolved. **The project owner subsequently reviewed this report and explicitly instructed that `ARCHITECTURE.md` and `CONVENTIONS.md` be reconciled to match.** `ARCHITECTURE.md` §17 and `CONVENTIONS.md` §25/§28 have since been updated accordingly: both now document the `{verb} {resource}` convention exclusively, with all dot-notation examples removed and replaced by the same examples used in this document (`access dashboard`, `view users`, `create users`, etc.). All three documents — `ARCHITECTURE.md`, `CONVENTIONS.md`, and this document — are now in agreement. This section is retained as a historical record of the contradiction and its resolution, not as an indication of an open discrepancy.
 
 ## 26.2 Everything else checked
 
